@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#06090f">
+  <title>Drwela VIP ⚡ | Final Edition</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #06090f;
+      --panel: #0e1621;
+      --panel-card: #131d2b;
+      --green: #00e6a0;
+      --green-glow: rgba(0, 230, 160, 0.3);
+      --yellow: #ffd34d;
+      --text: #f2f7f6;
+      --muted: #8a9ba8;
+      --border: #1e2c3a;
+      --danger: #ff5252;
+      --verified: #0095f6;
+      --telegram-blue: #0088cc;
+      --youtube-red: #ff0000;
+      --wa-green: #25d366;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+
+    body { background: var(--bg); color: var(--text); line-height: 1.6; padding-bottom: 80px; }
+
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; border: none; }
+
+    .container { width: min(100% - 20px, 680px); margin: 0 auto; padding-top: 15px; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: linear-gradient(180deg, #0d1520 0%, var(--bg) 100%);
+      padding: 14px 18px; border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      backdrop-filter: blur(10px); box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    }
+
+    .brand { font-size: 24px; font-weight: 900; color: var(--green); display: flex; align-items: center; gap: 8px; text-shadow: 0 0 15px var(--green-glow); }
+    .brand span { color: var(--yellow); }
+    .user-tag { font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 20px; background: rgba(0, 230, 160, 0.1); border: 1px solid rgba(0, 230, 160, 0.25); color: var(--green); }
+
+    .card { background: var(--panel); border: 1px solid var(--border); border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    .hero-box { background: linear-gradient(135deg, #0e1621 0%, #131f2e 100%); border: 1px solid var(--border); border-radius: 22px; padding: 22px; margin-bottom: 16px; }
+
+    h1 { font-size: 22px; margin-bottom: 6px; font-weight: 900; }
+    h2 { font-size: 18px; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 8px; font-weight: 800; }
+    .muted { color: var(--muted); font-size: 13px; }
+    .highlight { color: var(--green); font-weight: bold; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 16px; }
+    .stat-card { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 14px 8px; text-align: center; }
+    .stat-card strong { display: block; font-size: 24px; color: var(--green); font-weight: 900; }
+    .stat-card span { font-size: 11px; color: var(--muted); font-weight: 600; }
+
+    input, select, textarea { width: 100%; padding: 13px 15px; color: var(--text); background: #070c12; border: 1px solid var(--border); border-radius: 14px; outline: none; transition: 0.3s; font-size: 14px; }
+    input:focus, select:focus, textarea:focus { border-color: var(--green); box-shadow: 0 0 12px var(--green-glow); }
+    textarea { min-height: 85px; resize: vertical; }
+
+    .btn { border-radius: 14px; padding: 13px; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; text-decoration: none; width: 100%; font-size: 14px; }
+    .btn-primary { background: var(--green); color: #06110e; box-shadow: 0 4px 20px var(--green-glow); }
+    .btn-whatsapp { background: var(--wa-green); color: #000000; }
+    .btn-telegram { background: var(--telegram-blue); color: #ffffff; }
+    .btn-youtube { background: var(--youtube-red); color: #ffffff; }
+    .btn-secondary { background: #131d2b; color: var(--text); border: 1px solid var(--border); }
+
+    .hidden { display: none !important; }
+
+    .search-box { margin-bottom: 12px; }
+    .filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .filter-btn { background: var(--panel-card); color: var(--muted); border: 1px solid var(--border); padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+    .filter-btn.active { background: var(--green); color: #06110e; border-color: var(--green); }
+
+    .group-card { background: var(--panel-card); border: 1px solid var(--border); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+    .publisher { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .publisher img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--green); cursor: pointer; }
+    .publisher-info { flex: 1; }
+    .publisher-name { font-weight: 800; font-size: 14px; display: flex; align-items: center; gap: 5px; }
+    .verified-badge { color: var(--verified); font-size: 14px; }
+    .publisher-phone { font-size: 11px; color: var(--muted); }
+
+    .group-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; }
+    .group-title { font-size: 16px; font-weight: 800; }
+    .tag { padding: 3px 10px; border-radius: 15px; background: rgba(0, 230, 160, 0.1); color: var(--green); font-size: 11px; font-weight: 800; border: 1px solid rgba(0, 230, 160, 0.25); }
+    .description { color: var(--muted); font-size: 13px; margin-bottom: 12px; word-break: break-word; }
+
+    .meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px dashed var(--border); }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 6px; }
+    .actions .btn-act { flex: 1; padding: 9px; font-size: 12px; background: #070c12; color: var(--text); border: 1px solid var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none; font-weight: 700; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 62px; background: #0c141f; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 999; backdrop-filter: blur(10px); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--muted); font-size: 11px; font-weight: 700; background: none; flex: 1; }
+    .nav-item.active { color: var(--green); }
+    .nav-icon { font-size: 19px; }
+
+    #toast { position: fixed; bottom: 75px; left: 16px; right: 16px; max-width: 420px; margin: auto; background: var(--green); color: #06110e; font-weight: 900; padding: 13px; border-radius: 14px; text-align: center; display: none; z-index: 1000; box-shadow: 0 10px 30px rgba(0,230,160,0.4); }
+    #imgModal { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+    #imgModal img { max-width: 88%; max-height: 80%; border-radius: 50%; border: 3px solid var(--green); }
+
+    footer { text-align: center; color: var(--muted); padding: 15px; font-size: 11px; margin-top: 20px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand"><span>⚡</span> DRWELA VIP</div>
+    <div id="userBadge" class="user-tag">زائر مميز</div>
+  </header>
+
+  <div id="toast"></div>
+
+  <div id="imgModal" class="hidden" onclick="this.classList.add('hidden')">
+    <img id="modalImg" src="" alt="صورة مكبرة">
+  </div>
+
+  <main class="container">
+
+    <!-- 🏠 الرئيسية -->
+    <div id="tabHome" class="tab-content">
+      <section class="hero-box">
+        <h1>مرحباً بك في عالم <span class="highlight">Drwela VIP</span> 👋</h1>
+        <p class="muted">المنصة الذكية الأولى لاكتشاف ونشر المجتمعات والجروبات المباشرة.</p>
+      </section>
+
+      <section class="stats-grid">
+        <div class="stat-card">
+          <strong id="totalCount">0</strong>
+          <span>إجمالي الروابط</span>
+        </div>
+        <div class="stat-card">
+          <strong id="categoryCount">0</strong>
+          <span>التصنيفات</span>
+        </div>
+        <div class="stat-card">
+          <strong style="color: var(--yellow);">24/7</strong>
+          <span>نشط وحقيقي</span>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🔎 اكتشف الروابط والمجتمعات</h2>
+        <div class="search-box">
+          <input id="searchInput" type="search" placeholder="ابحث باسم الجروب، الوصف، أو المنصة..." oninput="render()">
+        </div>
+
+        <div class="filters" id="filters">
+          <button class="filter-btn active" data-category="all">الكل</button>
+          <button class="filter-btn" data-category="whatsapp">واتساب</button>
+          <button class="filter-btn" data-category="telegram">تيليجرام</button>
+          <button class="filter-btn" data-category="facebook">فيسبوك</button>
+          <button class="filter-btn" data-category="other">أخرى</button>
+        </div>
+
+        <div id="groupList">
+          <div class="muted" style="text-align: center; padding: 20px;">جاري جلب البيانات من السيرفر... ⚡</div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ➕ إضافة مجتمع -->
+    <div id="tabAdd" class="tab-content hidden">
+      <section class="card">
+        <h2>➕ أضف جروب أو قناة جديدة</h2>
+        <p class="muted" style="margin-bottom: 14px;">انشر مجتمعك ليصل إلى آلاف الزوار فوراً.</p>
+
+        <form id="groupForm" onsubmit="handleAddGroup(event)">
+          <div style="margin-bottom: 10px;">
+            <label class="muted">اسم الناشر / صاحب الرابط *</label>
+            <input id="gAuthor" maxlength="50" placeholder="مثال: محمد أيمن" required>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <label class="muted">اسم الجروب أو القناة *</label>
+            <input id="gName" maxlength="80" placeholder="مثال: مجتمع البرمجة والتقنية" required>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <label class="muted">التصنيف والمنصة *</label>
+            <select id="gCat" required>
+              <option value="whatsapp">واتساب</option>
+              <option value="telegram">تيليجرام</option>
+              <option value="facebook">فيسبوك</option>
+              <option value="other">أخرى</option>
+            </select>
+          </div>
+
+          <div style="margin-bottom: 10px;">
+            <label class="muted">رابط الانضمام المباشر *</label>
+            <input id="gUrl" type="url" maxlength="500" placeholder="https://..." dir="ltr" required>
+          </div>
+
+          <div style="margin-bottom: 14px;">
+            <label class="muted">وصف مختصر</label>
+            <textarea id="gDesc" maxlength="240" placeholder="اكتب نبذة عن الجروب..."></textarea>
+          </div>
+
+          <button class="btn btn-primary" type="submit">🚀 نشر الرابط مباشرة</button>
+        </form>
+      </section>
+    </div>
+
+    <!-- 👤 حسابي -->
+    <div id="tabProfile" class="tab-content hidden">
+      <section class="card" style="text-align: center;">
+        <img id="pAvatar" src="https://i.ibb.co/5GzXkwq/user.png" style="width: 80px; height: 80px; border-radius: 50%; border: 3px solid var(--green); margin-bottom: 10px; cursor: pointer;" onclick="openImageModal(this.src)">
+        <h3 id="pName">زائر Drwela</h3>
+        <p class="muted">حساب زائر محلي</p>
+      </section>
+
+      <section class="card">
+        <h2>⚙️ تخصيص الحساب</h2>
+        <div style="margin-bottom: 10px;">
+          <label class="muted">الاسم الظاهر</label>
+          <input type="text" id="editName" placeholder="اسمك المستعار">
+        </div>
+        <button class="btn btn-primary" onclick="saveProfile()">حفظ البيانات</button>
+      </section>
+    </div>
+
+    <!-- ⚙️ المطور -->
+    <div id="tabDeveloper" class="tab-content hidden">
+      <section class="card" style="text-align: center;">
+        <h2 style="justify-content: center;">👨‍💻 مطور التطبيق الرسمي</h2>
+        <p class="muted" style="margin-bottom: 15px;">محمد أيمن شرف الدين (Drwela ⚡)</p>
+
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <a href="https://wa.me/201157430360" target="_blank" class="btn btn-whatsapp">💬 تواصل عبر الواتساب (01157430360)</a>
+          <a href="https://t.me/Drwela1" target="_blank" class="btn btn-telegram">✈️ تواصل عبر تيليجرام (@Drwela1)</a>
+          <a href="https://youtube.com/@drwela-z7m5y?si=8Gc4gzJFZVjfigWb" target="_blank" class="btn btn-youtube">▶️ قناة المطور على يوتيوب</a>
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="switchTab('home', this)">
+      <span class="nav-icon">🏠</span>
+      <span>الرئيسية</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('add', this)">
+      <span class="nav-icon">➕</span>
+      <span>إضافة</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('profile', this)">
+      <span class="nav-icon">👤</span>
+      <span>حسابي</span>
+    </button>
+    <button class="nav-item" onclick="switchTab('developer', this)">
+      <span class="nav-icon">⚙️</span>
+      <span>المطور</span>
+    </button>
+  </nav>
+
+  <footer>DRWELA VIP ⚡ — ALL RIGHTS RESERVED 2026</footer>
+
+  <script>
+    // تم تصحيح المفتاح بالصيغة السليمة المطابقة تماماً لطلبك
+    const SUPABASE_URL = "https://opbkhhzdtkhexwkeshgq.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_m_xKu3Zfo9cimsW6lu3koQ_8sVe93BD";
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const labels = {
+      whatsapp: "واتساب",
+      telegram: "تيليجرام",
+      facebook: "فيسبوك",
+      other: "أخرى"
+    };
+
+    let currentUser = JSON.parse(localStorage.getItem("drwela_user_profile")) || {
+      name: "زائر " + Math.floor(1000 + Math.random() * 9000),
+      avatar: "https://i.ibb.co/5GzXkwq/user.png"
+    };
+
+    let groupsData = [];
+    let activeCategory = "all";
+    let toastTimer;
+
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.textContent = msg;
+      t.style.display = "block";
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { t.style.display = "none"; }, 3000);
+    }
+
+    function openImageModal(src) {
+      if (!src) return;
+      document.getElementById("modalImg").src = src;
+      document.getElementById("imgModal").classList.remove("hidden");
+    }
+
+    function switchTab(tabName, btnEl) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+      document.querySelectorAll(".nav-item").forEach(el => el.classList.remove("active"));
+      
+      if (tabName === 'home') document.getElementById("tabHome").classList.remove("hidden");
+      if (tabName === 'add') document.getElementById("tabAdd").classList.remove("hidden");
+      if (tabName === 'profile') document.getElementById("tabProfile").classList.remove("hidden");
+      if (tabName === 'developer') document.getElementById("tabDeveloper").classList.remove("hidden");
+
+      if (btnEl) btnEl.classList.add("active");
+    }
+
+    function initUserProfile() {
+      document.getElementById("userBadge").textContent = currentUser.name;
+      document.getElementById("pName").textContent = currentUser.name;
+      document.getElementById("pAvatar").src = currentUser.avatar;
+      document.getElementById("editName").value = currentUser.name;
+      document.getElementById("gAuthor").value = currentUser.name;
+      loadFeed();
+    }
+
+    function saveProfile() {
+      const name = document.getElementById("editName").value.trim();
+      if (name) currentUser.name = name;
+      localStorage.setItem("drwela_user_profile", JSON.stringify(currentUser));
+      initUserProfile();
+      showToast("✅ تم حفظ التعديلات بنجاح!");
+    }
+
+    async function loadFeed() {
+      try {
+        const { data, error } = await supabaseClient.from('groups').select('*').order('id', { ascending: false });
+        if (!error) {
+          groupsData = data || [];
+          render();
+        }
+      } catch (err) {
+        console.error("Error loading feed:", err);
+      }
+    }
+
+    async function trackClick(id, url) {
+      const target = groupsData.find(g => g.id === id);
+      const newViews = ((target && target.views_count) || 0) + 1;
+      await supabaseClient.from('groups').update({ views_count: newViews }).eq('id', id);
+      window.open(url, '_blank');
+    }
+
+    async function vote(groupId, type) {
+      const target = groupsData.find(g => g.id === groupId);
+      if (!target) return;
+
+      let up = target.upvotes || 0;
+      let down = target.downvotes || 0;
+      if (type === 'up') up++;
+      if (type === 'down') down++;
+
+      const { error } = await supabaseClient.from('groups').update({ upvotes: up, downvotes: down }).eq('id', groupId);
+      if (!error) {
+        target.upvotes = up;
+        target.downvotes = down;
+        render();
+        showToast("✨ تم تسجيل تفاعلك بنجاح!");
+      }
+    }
+
+    function makeCard(group) {
+      const authorName = group.user_phone || "عضو Drwela";
+      const isDev = authorName.includes('محمد') || authorName.includes('Drwela') || authorName.includes('01157430360');
+      const shareText = encodeURIComponent(`شاهد هذا الجروب المميز على منصة Drwela: ${group.name}\n${group.group_url}`);
+
+      const card = document.createElement("article");
+      card.className = "group-card";
+
+      card.innerHTML = `
+        <div class="publisher">
+          <img src="https://i.ibb.co/5GzXkwq/user.png" onclick="openImageModal(this.src)" title="تكبير الصورة">
+          <div class="publisher-info">
+            <div class="publisher-name">
+              ${authorName} ${isDev ? '<span class="verified-badge" title="موثق">✔</span>' : ''}
+            </div>
+            <div class="publisher-phone">ناشر المجتمع</div>
+          </div>
+        </div>
+
+        <div class="group-top">
+          <div class="group-title">${group.name}</div>
+          <span class="tag">${labels[group.category] || group.category}</span>
+        </div>
+        <p class="description">${group.description || 'لا يوجد وصف مضاف لهذا المجتمع.'}</p>
+
+        <div class="meta-bar">
+          <span>👁️ ${group.views_count || 0} زيارة</span>
+          <span>📌 ${labels[group.category] || 'عام'}</span>
+        </div>
+
+        <div class="actions">
+          <button class="btn-act" onclick="vote(${group.id}, 'up')">👍 ${group.upvotes || 0}</button>
+          <button class="btn-act" onclick="vote(${group.id}, 'down')">👎 ${group.downvotes || 0}</button>
+          <button class="btn-act" onclick="trackClick(${group.id}, '${group.group_url}')" style="background: var(--green); color: #06110e; font-weight:800;">🔗 انضمام</button>
+          <a class="btn-act" href="https://api.whatsapp.com/send?text=${shareText}" target="_blank">📤 مشاركة</a>
+        </div>
+      `;
+
+      return card;
+    }
+
+    function render() {
+      const searchInput = document.getElementById("searchInput");
+      const query = searchInput ? searchInput.value.trim().toLocaleLowerCase() : "";
+
+      const filtered = groupsData.filter(group => {
+        const matchesCategory = activeCategory === "all" || group.category === activeCategory;
+        const searchable = (group.name + " " + (group.description || "") + " " + (group.user_phone || "") + " " + (labels[group.category] || "")).toLocaleLowerCase();
+        return matchesCategory && searchable.includes(query);
+      });
+
+      const totalEl = document.getElementById("totalCount");
+      const catEl = document.getElementById("categoryCount");
+      if (totalEl) totalEl.textContent = groupsData.length;
+      if (catEl) catEl.textContent = new Set(groupsData.map(g => g.category)).size;
+
+      const groupList = document.getElementById("groupList");
+      if (!groupList) return;
+
+      groupList.replaceChildren();
+
+      if (filtered.length === 0) {
+        const empty = document.createElement("div");
+        empty.style.textAlign = "center";
+        empty.style.padding = "20px";
+        empty.className = "muted";
+        empty.textContent = groupsData.length ? "عذراً، لم نجد نتائج مطابقة لبحثك 🔍" : "لا توجد روابط مضافة بعد. كن أول من ينشر مجتمعه! 🚀";
+        groupList.append(empty);
+        return;
+      }
+
+      filtered.forEach(group => groupList.append(makeCard(group)));
+    }
+
+    async function handleAddGroup(e) {
+      e.preventDefault();
+      const author = document.getElementById("gAuthor").value.trim();
+      const name = document.getElementById("gName").value.trim();
+      const url = document.getElementById("gUrl").value.trim();
+      const category = document.getElementById("gCat").value;
+      const description = document.getElementById("gDesc").value.trim();
+
+      const newPost = {
+        user_phone: author || currentUser.name,
+        name: name,
+        group_url: url,
+        category: category,
+        description: description,
+        upvotes: 0,
+        downvotes: 0,
+        views_count: 0
+      };
+
+      const { error } = await supabaseClient.from('groups').insert([newPost]);
+
+      if (!error) {
+        showToast("🚀 تم نشر المجتمع بنجاح على السيرفر!");
+        document.getElementById("groupForm").reset();
+        document.getElementById("gAuthor").value = currentUser.name;
+        switchTab('home', document.querySelectorAll(".nav-item")[0]);
+        await loadFeed();
+      } else {
+        showToast("⚠️ خطأ في قاعدة البيانات: " + (error.message || "تأكد من تشغيل أمر SQL"));
+        console.error(error);
+      }
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        activeCategory = button.dataset.category;
+        document.querySelectorAll(".filter-btn").forEach(item => item.classList.toggle("active", item === button));
+        render();
+      });
+    });
+
+    initUserProfile();
+  </script>
+</body>
+</html>
